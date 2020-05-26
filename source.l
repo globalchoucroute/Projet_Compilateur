@@ -24,6 +24,8 @@ SUB         "-"
 MUL         "*"
 DIV         "/"
 EQUALS      "="
+LT          "<"
+GT          ">"
 OB          "{"
 CB          "}"
 OP          "("
@@ -40,33 +42,34 @@ GAP         ({TAB}|{SPACE}|{ENDLINE})+
 
 
 %%
-{IF}                                    {printf(" #if# "); return tIF;}
-{ELSE}                                  {printf(" #else# "); return tELSE;};
-{WHILE}                                 {printf(" #while# "); return tWHILE;};
-{Main}                                  {printf(" #main# "); return tMain;};
-{CONSTDEF}                              {printf(" #const# ");return tCONSTDEF;};
-{INTDEF}                                {printf(" #int# "); return tINTDEF;};
-{PRINTF}                                {printf(" #printf# "); return tPRINTF;};
-{VARNAME}                               {
-                                            yylval.string = strdup(yytext);
-                                            printf(" #Variable name# ");
-                                            return tVARNAME;};
-{Number}                                {
-                                            yylval.number = atoi(yytext);
-                                            printf(" #Number# ");
-                                            return tNUMBER;
-                                        };
-{ENDINST}                               {printf(" #ENDINST# \n"); return tENDINST;};
-{QMARK}                                 {printf(" #QMARK# "); return tQMARK;};
-{OB}                                    {printf(" #Function start# \n"); return tOB;};
-{CB}                                    {printf(" #Function end# \n"); return tCB;};
-{OP}                                    {printf(" #Parenthesis start# "); return tOP;};
-{CP}                                    {printf(" #Parenthesis end# "); return tCP;};
-{ADD}                                   {printf(" #ADD# "); return tADD;};
-{SUB}                                   {printf(" #SUB# "); return tSUB ;};
-{MUL}                                   {printf(" #MUL# "); return tMUL;};
-{DIV}                                   {printf(" #DIV# "); return tDIV;};
-{SEP}                                   {printf(" #SEP# "); return tSEP;};
-{EQUALS}                                {printf(" #EQUALS# "); return tEQUALS;};    
-{GAP}                                   ;
+{IF}            {return tIF;}
+{ELSE}          {return tELSE;};
+{WHILE}         {return tWHILE;};
+{Main}          {return tMain;};
+{CONSTDEF}      {return tCONSTDEF;};
+{INTDEF}        {return tINTDEF;};
+{PRINTF}        {return tPRINTF;};
+{VARNAME}       {
+                    yylval.string = strdup(yytext);
+                    return tVARNAME;
+                };
+{Number}        {
+                    yylval.number = atoi(yytext);
+                    return tNUMBER;
+                };
+{ENDINST}       {return tENDINST;};
+{QMARK}         {return tQMARK;};
+{OB}            {return tOB;};
+{CB}            {return tCB;};
+{OP}            {return tOP;};
+{CP}            {return tCP;};
+{ADD}           {return tADD;};
+{SUB}           {return tSUB;};
+{MUL}           {return tMUL;};
+{DIV}           {return tDIV;};
+{SEP}           {return tSEP;};
+{LT}            {return tLT;};
+{GT}            {return tGT;};
+{EQUALS}        {return tEQUALS;};    
+{GAP}           ;
 

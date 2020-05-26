@@ -2,6 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 #include "symboltable.h"
+#include "asm.h"
+
+int yylex();
+void yyerror();
+int index_temp = 100;
+int tmp;
 %}
 
 %union {
@@ -13,16 +19,25 @@
 %left           tADD tSUB
 %left           tMUL tDIV
 %left           tOP tCP
-%token <number> tNUMBER
+%token <number> tNUMBER tIF tELSE tWHILE 
 %token <string> tVARNAME 
-%token          tIF tELSE tWHILE tMain tCONSTDEF tINTDEF tENDINST tQMARK tOB tCB tSEP tPRINTF tGAP
+%token          tMain tCONSTDEF tINTDEF tENDINST tQMARK tOB tCB tSEP tPRINTF tGAP tLT tGT
 
+%type <number>  if_facto while 
 %start start
 %%
 
 start: main
 
-main:       tMain tOP tCP tOB instruction tCB;
+main:       tMain tOP tCP openingB instruction closingB;
+
+openingB:       tOB {
+                        incrementDepth();
+                    };
+
+closingB:       tCB {
+                        decrementDepth();
+                    };
 
 instruction:    ligne instruction
                 | 
@@ -34,21 +49,50 @@ ligne:      expression tENDINST
             |
             printf tENDINST
             |
-            if;
+            if
+            |
+            while;
 
-expression:     tNUMBER
+expression:     tNUMBER                         {
+                                                    add_inst("AFC", index_temp, $1, 0);
+                                                    index_temp++;
+                                                }
                 |
-                tVARNAME
+                tVARNAME                        {
+                                                    symbole *s = exists($1);
+                                                    int addr = s->address;
+                                                    tmp = add_inst("COP", index_temp, addr, 0);
+                                                    index_temp ++;
+                                                }
 				|
-                expression  tADD expression 
+                expression tADD expression      {
+                                                    index_temp--;
+                                                    tmp = add_inst("ADD", index_temp -1, index_temp -1, index_temp);
+                                                }      
                 |
-                expression tSUB expression 
+                expression tSUB expression      {
+                                                    index_temp--;
+                                                    tmp = add_inst("SUB", index_temp -1, index_temp -1, index_temp);
+                                                }      
                 |
-                expression tMUL expression 
+                expression tMUL expression      {
+                                                    index_temp--;
+                                                    tmp = add_inst("MUL", index_temp -1, index_temp -1, index_temp);
+                                                }      
                 |
-                expression tDIV expression
+                expression tDIV expression      {
+                                                    index_temp--;
+                                                    tmp = add_inst("DIV", index_temp -1, index_temp -1, index_temp);
+                                                }      
                 |
-                expression tEQUALS expression
+                tNUMBER tEQUALS expression   
+                |
+                tVARNAME tEQUALS expression     {
+                                                    char *varname = $1;
+                                                    symbole *s = exists(varname);
+                                                    int addr = s->address;
+                                                    tmp = add_inst("COP", addr, index_temp - 1, 0);
+                                                }
                 |
                 tOP expression tCP;
 
@@ -63,44 +107,67 @@ intdefs:        intdef
 intdef:         tVARNAME {
                     char *varname = $1;
                     addSymbol(varname, 0, 0);
-                    int a = getAddress(varname);
-                    printf("addresse de la variable : %d\n ", a);
                     }
                 |
-                tVARNAME tEQUALS tNUMBER {
-                    int value = $3;
+                tVARNAME tEQUALS expression {
                     char *varname = $1;
                     addSymbol(varname, 0, 1);
-                    int a = getAddress(varname);
-                    printf("addresse de la variable : %d\n ", a);
+                    symbole *s = exists(varname);
+                    int addr = s->address;
+                    tmp = add_inst("COP", addr, index_temp - 1, 0);
+                    index_temp = 100;
                     };
 
 constdefs:      constdef
                 |
                 constdef tSEP constdefs;
 
-constdef:       tVARNAME tEQUALS tNUMBER {
-                    int value = $3;
+constdef:       tVARNAME tEQUALS expression {
                     char *varname = $1;
                     addSymbol(varname, 1, 1);
-                    int a = getAddress(varname);
-                    printf("addresse de la variable : %d\n ", a);
+                    symbole *s = exists(varname);
+                    int addr = s->address;
+                    tmp = add_inst("COP", addr, index_temp - 1, 0);
+                    index_temp = 100;
                     };
 
-if:             tIF statement tOB instruction tCB
+if:             if_facto {
+                    modify_inst($1, get_nextLine());
+                }
                 |
-                tIF statement tOB instruction tELSE tOB instruction tCB;
+                if_facto tELSE {
+                    $2 = add_inst("JMP", $1, -1, 0);
+                    modify_inst($1, get_nextLine());
+                }
+                openingB instruction closingB {
+                    modify_else($2, get_nextLine());
+                };
 
-statement:      tOP tCP;
+if_facto:       tIF tOP expression tCP {
+                    $1 = add_inst("JMF", index_temp-1, -1, 0);
+                    index_temp = 100;
+                }
+                openingB instruction closingB  {
+                    $$ = $1;
+                };
 
-printf:         tPRINTF tOP tVARNAME tCP;
+while:          tWHILE {$1 = get_nextLine() - 1;} tOP expression tCP {
+                    tmp = add_inst("JMF", index_temp-1, -1, 0);
+                    index_temp = 100;
+                } openingB instruction closingB {
+                    tmp = add_inst("JMP", $1, -1, 0);
+                    modify_inst(get_next_JMF($1), get_nextLine());
+                };
+
+printf:         tPRINTF tOP tVARNAME tCP {
+                    char *varname = $3;
+                    symbole *s = exists(varname);
+                    int addr = s->address;
+                    tmp = add_inst("PRI", addr, -1, -1);
+                };
 
 %%
 
-void yyerror(const char *str)
-{
-    fprintf(stderr,"error: %s\n",str);
-}
 
 int yywrap()
 {
@@ -108,9 +175,10 @@ int yywrap()
 }
 
 int main(void)
-{
-    printf("Enter an expression\n");
+{   
     init();
+    init_asm();
     yyparse();
+    print_tab();
 }
 

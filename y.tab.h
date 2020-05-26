@@ -57,10 +57,10 @@ extern int yydebug;
     tOP = 263,
     tCP = 264,
     tNUMBER = 265,
-    tVARNAME = 266,
-    tIF = 267,
-    tELSE = 268,
-    tWHILE = 269,
+    tIF = 266,
+    tELSE = 267,
+    tWHILE = 268,
+    tVARNAME = 269,
     tMain = 270,
     tCONSTDEF = 271,
     tINTDEF = 272,
@@ -70,7 +70,9 @@ extern int yydebug;
     tCB = 276,
     tSEP = 277,
     tPRINTF = 278,
-    tGAP = 279
+    tGAP = 279,
+    tLT = 280,
+    tGT = 281
   };
 #endif
 /* Tokens.  */
@@ -82,10 +84,10 @@ extern int yydebug;
 #define tOP 263
 #define tCP 264
 #define tNUMBER 265
-#define tVARNAME 266
-#define tIF 267
-#define tELSE 268
-#define tWHILE 269
+#define tIF 266
+#define tELSE 267
+#define tWHILE 268
+#define tVARNAME 269
 #define tMain 270
 #define tCONSTDEF 271
 #define tINTDEF 272
@@ -96,18 +98,20 @@ extern int yydebug;
 #define tSEP 277
 #define tPRINTF 278
 #define tGAP 279
+#define tLT 280
+#define tGT 281
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
 union YYSTYPE
 {
-#line 7 "source.y" /* yacc.c:1921  */
+#line 13 "source.y" /* yacc.c:1921  */
 
     int number;
     char *string;
 
-#line 111 "y.tab.h" /* yacc.c:1921  */
+#line 115 "y.tab.h" /* yacc.c:1921  */
 };
 
 typedef union YYSTYPE YYSTYPE;

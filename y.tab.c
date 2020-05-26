@@ -1477,7 +1477,7 @@ yyreduce:
 
   case 36:
 #line 154 "source.y" /* yacc.c:1652  */
-    {(yyvsp[0].number) = get_nextLine() - 1;}
+    {(yyvsp[0].number) = get_nextLine();}
 #line 1482 "y.tab.c" /* yacc.c:1652  */
     break;
 

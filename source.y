@@ -151,12 +151,12 @@ if_facto:       tIF tOP expression tCP {
                     $$ = $1;
                 };
 
-while:          tWHILE {$1 = get_nextLine() - 1;} tOP expression tCP {
-                    tmp = add_inst("JMF", index_temp-1, -1, 0);
+while:          tWHILE {$1 = get_nextLine();} tOP expression tCP {
+                    add_inst("JMF", index_temp-1, -1, 0);
                     index_temp = 100;
                 } openingB instruction closingB {
-                    tmp = add_inst("JMP", $1, -1, 0);
-                    modify_inst(get_next_JMF($1), get_nextLine());
+                    add_inst("JMP", $1, -1, 0);
+                    modify_inst(get_nextJMF($1), get_nextLine());
                 };
 
 printf:         tPRINTF tOP tVARNAME tCP {

@@ -19,5 +19,5 @@ void modify_inst(int value, int line);
 void modify_else(int value, int line);
 
 int get_nextLine();
-int get_next_JMF(int cur);
+int get_nextJMF(int cur);
 void print_tab();

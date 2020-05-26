@@ -1,18 +1,20 @@
 main ( )
 {
-    int b = 10;
-    int c = b+10;
-    if(b) {
-        int a = 2; 
-        if (c) {
-            int z = 3;
+    int compteur = 4;
+    int resultat = 0-10;
+    while (compteur) {
+        resultat = resultat + 5;
+        compteur = compteur - 1;
+        if (resultat) {
+            printf (resultat);
         }
-        a = 3;
-    } else {
-        b = 1;
+        else {
+            int a = 2;
+            int i,j,k = 5;
+            j = 3;
+            i = compteur * (j + k) / a;
+            printf (i);
+        }
     }
-    while(b){
-        b = b - 5;
-    }
-    b = 10;
+    printf(resultat);
 }

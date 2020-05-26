@@ -31,13 +31,15 @@ void modify_else(int value, int line){
 int get_nextLine(){
     return currentSize;
 }
-int get_next_JMF(int cur){
+int get_nextJMF(int cur){
+    int index = -1;
     for (int i = cur; i < currentSize; i++){
         if(strcmp(instructionsTab[i].inst, "JMF") == 0){
-            return i;
+            index = i;
+            break;
         }
     }
-    return -1;
+    return index;
 }
 void print_tab(){
     instruction curr;
